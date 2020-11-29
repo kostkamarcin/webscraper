@@ -4,6 +4,7 @@ from requests import get
 import json
 import re
 
+
 # kod pobiera dane tylko z pierwszej strony, wiec przy wyswietlaniu 10 wynikow na strone i liczbie wszystkich wynikow
 # wynoszacej 66253, trzeba powtorzyc czynnosc 6626 razy
 
@@ -32,11 +33,20 @@ for i in range(6626):
         link2 = bs2.find('a', class_='btn btn-b').get('href')
         url3 = 'https://nabory.kprm.gov.pl' + link2
         bs3 = BeautifulSoup(get(url3).content, 'html.parser')
-        
+        if bs3.find('div', class_ = 'info-circle__content info-circle__content--salary info-circle__content--small-text'):
+            salary = \
+            bs3.find('div', class_ = 'info-circle__content info-circle__content--salary info-circle__content--small-text').get_text().strip()
+        else:
+            salary = 'nie podano'
 
+        if bs3.find('div', class_= 'info-circle__content info-circle__content--small-text info-circle__content--state-note')  :
+            state = \
+                bs3.find('div', class_= 'info-circle__content info-circle__content--small-text info-circle__content--state-note').get_text().strip()
+        else:
+            state = 'brak danych'
 
         # zapisuje dane do pliku txt o nazwie 'data'
-        data = [job_id, job_title, institution, city, date, re.sub(r'(\s+|\n)', ' ', result)]
+        data = [job_id, job_title, institution, city, date, re.sub(r'(\s+|\n)', ' ', result), re.sub(r'(\s+|\n)', ' ', salary), state]
         with open('data.txt', 'a', encoding='utf-8') as f:
             f.writelines(str(data)+'\n')
 
