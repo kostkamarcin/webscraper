@@ -6,9 +6,9 @@ import re
 
 
 # kod pobiera dane tylko z pierwszej strony, wiec przy wyswietlaniu 10 wynikow na strone i liczbie wszystkich wynikow
-# wynoszacej 66253, trzeba powtorzyc czynnosc 6626 razy
+# wynoszacej 66558, trzeba powtorzyc czynnosc 6626 razy
 
-for i in range(6626):
+for i in range(6656):
     url = 'https://nabory.kprm.gov.pl/wyniki-naborow?AdResult%5BpagesCnt%5D=10&AdResult%5BisAdvancedMode%5D=&AdResult'\
     '%5Bsort%5D=1&AdResult%5Bid%5D=&AdResult%5Bid_institution%5D=&AdResult%5Bid_institution_position%5D=&search-button='\
     + '&page=' + str(i) + '&per-page=10'
@@ -45,10 +45,18 @@ for i in range(6626):
         else:
             state = 'brak danych'
 
+        responsibilities = bs3.find('div', class_ = 'advertisement__main-content__responsibilities__list list').get_text().strip()
+        requirements = bs3.find('div', class_ = 'advertisement__main-content__requirements__list list').get_text().strip()
+
+        
+
+
         # zapisuje dane do pliku txt o nazwie 'data'
-        data = [job_id, job_title, institution, city, date, re.sub(r'(\s+|\n)', ' ', result), re.sub(r'(\s+|\n)', ' ', salary), state]
-        with open('data.txt', 'a', encoding='utf-8') as f:
-            f.writelines(str(data)+'\n')
+        data = [job_id, job_title, institution, city, date, re.sub(r'(\s+|\n)', ' ', result), re.sub(r'(\s+|\n)', ' ', salary),
+                state, re.sub(r'(\s+|\n)', ' ', responsibilities), re.sub(r'(\s+|\n)', ' ', requirements)]
+        with open('data.json', 'a', encoding='utf-8') as f:
+           f.writelines(str(data)+'\n')
+
 
 
 
