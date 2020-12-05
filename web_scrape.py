@@ -45,9 +45,14 @@ for i in range(6656):
         else:
             state = 'brak danych'
 
-        responsibilities = bs3.find('div', class_ = 'advertisement__main-content__responsibilities__list list').get_text().strip()
-        requirements = bs3.find('div', class_ = 'advertisement__main-content__requirements__list list').get_text().strip()
-
+        if bs3.find('div', class_ = 'advertisement__main-content__responsibilities__list list'):
+            responsibilities = bs3.find('div', class_ = 'advertisement__main-content__responsibilities__list list').get_text().strip()
+        else:
+            responsibilities = 'nie podano'
+        if bs3.find('div', class_ = 'advertisement__main-content__requirements__list list'):
+            requirements = bs3.find('div', class_ = 'advertisement__main-content__requirements__list list').get_text().strip()
+        else:
+            requirements = 'nie podano'
         
 
 
@@ -56,6 +61,9 @@ for i in range(6656):
                 state, re.sub(r'(\s+|\n)', ' ', responsibilities), re.sub(r'(\s+|\n)', ' ', requirements)]
         with open('data.json', 'a', encoding='utf-8') as f:
            f.writelines(str(data)+'\n')
+
+        
+
 
 
 
