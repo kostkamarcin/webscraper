@@ -17,6 +17,6 @@ for i in letters:
     url_2 = element.find('a', class_ = 'viewMore').get('href')
     soup_2 = BeautifulSoup(get(url_2).content, 'html.parser')
     tasks = soup_2.find_all('td')[4].get_text().strip()
-    data = [id, title, re.sub(r'(\s+|\n)', ' ', tasks)]
+    data = [id, re.sub(r'(\s+|\n)', ' ', title), re.sub(r'(\s+|\n)', ' ', tasks)]
     with open('jobs.json', 'a', encoding='utf-8') as f:
       f.writelines(str(data)+'\n')
