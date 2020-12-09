@@ -4,6 +4,8 @@ from requests import get
 import json
 import re
 
+def insert_pipe(string, index):
+    return string[:index] + '|' + string[index:]
 
 # kod pobiera dane tylko z pierwszej strony, wiec przy wyswietlaniu 10 wynikow na strone i liczbie wszystkich wynikow
 # wynoszacej 66558, trzeba powtorzyc czynnosc 6626 razy
@@ -27,7 +29,14 @@ for i in range(6656):
         link = element.find('a', class_='single').get('href')
         url2 = "https://nabory.kprm.gov.pl" + link
         bs2 = BeautifulSoup(get(url2).content, 'html.parser')
-        result = bs2.find('div', class_='row job-res').get_text()
+        result1 = bs2.find('div', class_='row job-res').get_text().strip()
+        result2 = re.sub(r'(\s+|\n)', ' ', result1)
+        if ('anulowano nabór') in result2:
+            index = result2.find('nabór') + len('nabór')
+            result2 = insert_pipe(result2, index)
+        elif ('nabór zakończony wyborem kandydatki/kandydata') in result2:
+            index = result2.find('kandydata') + len('kandydata')
+            result2 = insert_pipe(result2, index)
 
         # pobieram odnosnik do strony z ogloszeniem w celu uzyskania opisu stanowiska, pensji itd.
         link2 = bs2.find('a', class_='btn btn-b').get('href')
@@ -45,8 +54,9 @@ for i in range(6656):
         else:
             state = 'brak danych'
 
-        if bs3.find('div', class_ = 'advertisement__main-content__responsibilities__list list'):
-            responsibilities = bs3.find('div', class_ = 'advertisement__main-content__responsibilities__list list').get_text().strip()
+        if bs3.find('div', class_ = 'job-post__main-content__responsibilities__list list'):
+            bs3.find('div', class_ = 'warning-b').extract()
+            responsibilities = bs3.find('div', class_ = 'job-post__main-content__responsibilities__list list').get_text().strip()
         else:
             responsibilities = 'nie podano'
         if bs3.find('div', class_ = 'advertisement__main-content__requirements__list list'):
