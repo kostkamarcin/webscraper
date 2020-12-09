@@ -10,7 +10,7 @@ def insert_pipe(string, index):
 # kod pobiera dane tylko z pierwszej strony, wiec przy wyswietlaniu 10 wynikow na strone i liczbie wszystkich wynikow
 # wynoszacej 66558, trzeba powtorzyc czynnosc 6626 razy
 
-for i in range(6656):
+for i in range(6670):
     url = 'https://nabory.kprm.gov.pl/wyniki-naborow?AdResult%5BpagesCnt%5D=10&AdResult%5BisAdvancedMode%5D=&AdResult'\
     '%5Bsort%5D=1&AdResult%5Bid%5D=&AdResult%5Bid_institution%5D=&AdResult%5Bid_institution_position%5D=&search-button='\
     + '&page=' + str(i) + '&per-page=10'
@@ -59,16 +59,28 @@ for i in range(6656):
             responsibilities = bs3.find('div', class_ = 'job-post__main-content__responsibilities__list list').get_text().strip()
         else:
             responsibilities = 'nie podano'
-        if bs3.find('div', class_ = 'advertisement__main-content__requirements__list list'):
-            requirements = bs3.find('div', class_ = 'advertisement__main-content__requirements__list list').get_text().strip()
+
+        if bs3.find('div', class_ = 'job-post__main-content__requirements__list list'):
+            temp = bs3.find('div', class_ = 'job-post__main-content__requirements__list list')
+            education = temp.select('ul > li')[0].get_text().strip()
+            requirements = temp.select('div > ul')[0].get_text().strip().replace(education, '')
+
         else:
-            requirements = 'nie podano'
-        
+            requirements = 'brak wymagan'
+
+        if bs3.find('div', class_ = 'job-post__main-content__requirements__list__additional-requirements'):
+            additional_requirements = temp.select('div > ul')[1].get_text().strip()
+
+        else:
+            additional_requirements = 'brak dodatkowych wymagan'
 
 
-        # zapisuje dane do pliku txt o nazwie 'data'
-        data = [job_id, job_title, institution, city, date, re.sub(r'(\s+|\n)', ' ', result), re.sub(r'(\s+|\n)', ' ', salary),
-                state, re.sub(r'(\s+|\n)', ' ', responsibilities), re.sub(r'(\s+|\n)', ' ', requirements)]
+
+
+
+        # zapisuje dane do pliku json o nazwie 'data'
+        data = [job_id, job_title, institution, city, date, re.sub(r'(\s+|\n)', ' ', result2), re.sub(r'(\s+|\n)', ' ', salary),
+                state, re.sub(r'(\s+|\n)', ' ', responsibilities), re.sub(r'(\s+|\n)', ' ', education), re.sub(r'(\s+|\n)', ' ', requirements), re.sub(r'(\s+|\n)', ' ', additional_requirements)]
         with open('data.json', 'a', encoding='utf-8') as f:
            f.writelines(str(data)+'\n')
 
