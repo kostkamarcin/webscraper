@@ -7,10 +7,11 @@ import re
 def insert_pipe(string, index):
     return string[:index] + '|' + string[index:]
 
+
 # kod pobiera dane tylko z pierwszej strony, wiec przy wyswietlaniu 10 wynikow na strone i liczbie wszystkich wynikow
 # wynoszacej 66558, trzeba powtorzyc czynnosc 6626 razy
 
-for i in range(6670):
+for i in range(6683):
     url = 'https://nabory.kprm.gov.pl/wyniki-naborow?AdResult%5BpagesCnt%5D=10&AdResult%5BisAdvancedMode%5D=&AdResult'\
     '%5Bsort%5D=1&AdResult%5Bid%5D=&AdResult%5Bid_institution%5D=&AdResult%5Bid_institution_position%5D=&search-button='\
     + '&page=' + str(i) + '&per-page=10'
@@ -23,7 +24,7 @@ for i in range(6670):
         job_title = element.find('strong', class_='title').get_text()
         institution = element.select('div > b')[0].get_text(strip=True)
         city = element.select('div > b')[1].get_text(strip=True)
-        date = element.select('div > b')[2].get_text(strip=True)
+        announcement_date = element.select('div > b')[2].get_text(strip=True)
 
         # pobieram odnosnik ze strony glownej do podstrony kazdego wyniku, chce pobrac wynik naboru
         link = element.find('a', class_='single').get('href')
@@ -37,6 +38,8 @@ for i in range(6670):
         elif ('nabór zakończony wyborem kandydatki/kandydata') in result2:
             index = result2.find('kandydata') + len('kandydata')
             result2 = insert_pipe(result2, index)
+        result_date = bs2.select('li > div')[1].get_text().strip()
+
 
         # pobieram odnosnik do strony z ogloszeniem w celu uzyskania opisu stanowiska, pensji itd.
         link2 = bs2.find('a', class_='btn btn-b').get('href')
@@ -55,34 +58,46 @@ for i in range(6670):
             state = 'brak danych'
 
         if bs3.find('div', class_ = 'job-post__main-content__responsibilities__list list'):
-            bs3.find('div', class_ = 'warning-b').extract()
-            responsibilities = bs3.find('div', class_ = 'job-post__main-content__responsibilities__list list').get_text().strip()
+            responsibilities = bs3.find('div', class_='job-post__main-content__responsibilities__list list').findChildren('li')
+            for index, item in enumerate(responsibilities):
+                responsibilities[index] = item.get_text()
+
         else:
             responsibilities = 'nie podano'
 
         if bs3.find('div', class_ = 'job-post__main-content__requirements__list list'):
             temp = bs3.find('div', class_ = 'job-post__main-content__requirements__list list')
             education = temp.select('ul > li')[0].get_text().strip()
-            requirements = temp.select('div > ul')[0].get_text().strip().replace(education, '')
+            #requirements = temp.select('div > ul')[0].get_text().strip().replace(education, '')
+            requirements = temp.find('ul').findChildren('li')
+            requirements.pop(0)
+            for id, requirement in enumerate(requirements):
+
+                requirements[id] = re.sub(r'(\s+|\n)', ' ', requirement.get_text())
 
         else:
             requirements = 'brak wymagan'
 
         if bs3.find('div', class_ = 'job-post__main-content__requirements__list__additional-requirements'):
-            additional_requirements = temp.select('div > ul')[1].get_text().strip()
-
+            additional_requirements = temp.find('ul').findNextSibling('ul').findChildren('li')
+            for ind, additional in enumerate(additional_requirements):
+                additional_requirements[ind] = re.sub(r'(\s+|\n)', ' ', additional.get_text())
         else:
             additional_requirements = 'brak dodatkowych wymagan'
 
+        if bs3.find('div', class_ = 'col-lg-12 visits-number'):
+            views = bs3.find('div', class_ = 'col-lg-12 visits-number').get_text()
+        else:
+            views = 'brak liczby odwiedzin'
 
 
-
-
-        # zapisuje dane do pliku json o nazwie 'data'
-        data = [job_id, job_title, institution, city, date, re.sub(r'(\s+|\n)', ' ', result2), re.sub(r'(\s+|\n)', ' ', salary),
-                state, re.sub(r'(\s+|\n)', ' ', responsibilities), re.sub(r'(\s+|\n)', ' ', education), re.sub(r'(\s+|\n)', ' ', requirements), re.sub(r'(\s+|\n)', ' ', additional_requirements)]
+         # dane do pliku json o nazwie 'data'
+        data = [job_id, job_title, institution, city, announcement_date,re.sub(r'(\s+|\n)', ' ', result_date),
+                re.sub(r'(\s+|\n)', ' ', result2), re.sub(r'(\s+|\n)', ' ', salary), state, responsibilities,
+                re.sub(r'(\s+|\n)', ' ', education), requirements,
+                additional_requirements, re.sub(r'(\s+|\n)', ' ', views)]
         with open('data.json', 'a', encoding='utf-8') as f:
-           f.writelines(str(data)+'\n')
+          f.writelines(str(data)+'\n')
 
         
 
