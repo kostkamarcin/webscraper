@@ -13,7 +13,7 @@ def insert_pipe(string, index):
 # kod pobiera dane tylko z pierwszej strony, wiec przy wyswietlaniu 10 wynikow na strone i liczbie wszystkich wynikow
 # wynoszacej 66558, trzeba powtorzyc czynnosc 6626 razy
 
-for i in range(6683):
+for i in range(134):
     url = 'https://nabory.kprm.gov.pl/wyniki-naborow?AdResult%5BpagesCnt%5D=10&AdResult%5BisAdvancedMode%5D=&AdResult'\
     '%5Bsort%5D=1&AdResult%5Bid%5D=&AdResult%5Bid_institution%5D=&AdResult%5Bid_institution_position%5D=&search-button='\
     + '&page=' + str(i) + '&per-page=10'
@@ -59,6 +59,18 @@ for i in range(6683):
         else:
             state = 'brak danych'
 
+        if bs3.find('div', class_='info-circle__content info-circle__content--work-time-cnt'):
+            positions = bs3.find('div',
+                                 class_='info-circle__content info-circle__content--work-time-cnt').get_text().strip()
+        else:
+            positions = 'brak liczby stanowisk'
+
+        if bs3.find('div', class_='info-circle__content info-circle__content--work-time'):
+            work_time = bs3.find('div',
+                                 class_='info-circle__content info-circle__content--work-time').get_text().strip()
+        else:
+            work_time = 'nie podano wymiaru etatu'
+
         if bs3.find('div', class_ = 'job-post__main-content__responsibilities__list list'):
             responsibilities = bs3.find('div', class_='job-post__main-content__responsibilities__list list').findChildren('li')
             for index, item in enumerate(responsibilities):
@@ -95,7 +107,8 @@ for i in range(6683):
 
          # dane do pliku json o nazwie 'data'
         data = [job_id, job_title, institution, city, announcement_date,re.sub(r'(\s+|\n)', ' ', result_date),
-                re.sub(r'(\s+|\n)', ' ', result2), re.sub(r'(\s+|\n)', ' ', salary), state, responsibilities,
+                re.sub(r'(\s+|\n)', ' ', result2), re.sub(r'(\s+|\n)', ' ', salary), positions,
+                work_time, state, responsibilities,
                 re.sub(r'(\s+|\n)', ' ', education), requirements,
                 additional_requirements, re.sub(r'(\s+|\n)', ' ', views)]
         with open('data.json', 'a', encoding='utf-8') as f:
