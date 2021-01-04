@@ -13,7 +13,7 @@ def insert_pipe(string, index):
 # kod pobiera dane tylko z pierwszej strony, wiec przy wyswietlaniu 10 wynikow na strone i liczbie wszystkich wynikow
 # wynoszacej 66558, trzeba powtorzyc czynnosc 6626 razy
 
-for i in range(134):
+for i in range(132):
     url = 'https://nabory.kprm.gov.pl/wyniki-naborow?AdResult%5BpagesCnt%5D=10&AdResult%5BisAdvancedMode%5D=&AdResult'\
     '%5Bsort%5D=1&AdResult%5Bid%5D=&AdResult%5Bid_institution%5D=&AdResult%5Bid_institution_position%5D=&search-button='\
     + '&page=' + str(i) + '&per-page=10'
