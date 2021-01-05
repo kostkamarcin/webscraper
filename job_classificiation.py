@@ -20,4 +20,5 @@ for i in letters:
     tasks = soup_2.find_all('td')[4].get_text().strip()
     data = [id, re.sub(r'(\s+|\n)', ' ', title), re.sub(r'(\s+|\n)', ' ', synthesis), re.sub(r'(\s+|\n)', ' ', tasks)]
     with open('jobs.json', 'a', encoding='utf-8') as f:
-      f.writelines(str(data)+'\n')
+      json.dump(data, f)
+      f.write('\n')
